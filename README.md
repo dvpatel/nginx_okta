@@ -189,7 +189,7 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 
 ## Stay in touch
 
-- Author - [Dipesh Patel](https://www.linkedin.com/dipeshpate)
+- Author - [Dipesh Patel](https://www.linkedin.com/dipeshpatel)
 
 ## License
 
