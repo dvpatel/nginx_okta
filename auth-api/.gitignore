@@ -4,6 +4,7 @@
 /package-lock.json
 /.eslintrc.js
 /.prettierrc
+**/*.env.my
 
 # Logs
 logs
