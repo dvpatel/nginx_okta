@@ -9,26 +9,26 @@ For this project, the assumption is the architecture is built on fully trusted i
 
 2.  Decouple security processes and management from downstream systems to support loose coupling and higher cohesion for  authentication & authorization, security workflow, audibility and other security tasks.
 
-3.  Security technology and business processes will evolve as new security workflows are identified.  This is driven not only by technology changes but driven by business needs as well.  The respective systems need to evolve in a flexibility, independent manner.
+3.  Modularity.  Security technology and business processes will evolve as new security workflows are identified.  This is driven not only by technology changes but driven by business needs as well.  The respective systems need to evolve in a flexible, independent manner.
 
-4.  As application architecture grows with more customer load, the security and application services should not become a performance bottleneck, especially for cloud based implementation.
+4.  As application architecture grows with more customer load, the security services should not become a performance bottleneck.
 
 5.  The security system should maintain consistent performance and response times as load for customer requests increases.
 
-6.  The security system should provide an way to easy to automate audits for vulnerability checks, review security workflows and algorithms, and enable security observability for alerts and threat monitoring.
+6.  The security system should automate audits for vulnerability checks, review security workflows and algorithms, and enable security observability for alerts and threat monitoring.
 
-7.  System should be built on automation for faster diagnostics, scale, extensibility, and ease of management in a complex micro-services environment.
+7.  System should be built on automation for faster diagnostics, scale, and ease of management in a complex ( micro-services ) environment.
 
 8.  Optimize costs as system grows with business demands and security complexity.
 
 
 ## Solution
 
-Design and implement an intercepting filter inside the web tier to centrally enforce security controls for every protected application service requests.  The component can integrate with security service API that is responsible for client token validation, audit, product level authorization, as well as providing domain information for downstream services to consume.  
+Design and implement an intercepting filter in an upstream system (web-tier) to centrally enforce security controls for every protected application service requests.  The component can integrate with security service API that is responsible for client token validation, audit, product level authorization, as well as providing domain specific information for downstream services processing.  
 
-If security checks fail, the intercepting filter will reject client request with 4XX status code.  If security checks pass, the intercepting filter will allow api request to flow through with propagation of common domain information describing the authenticated, validated client entity.
+If security checks fail, the intercepting filter will protect downstream systems by failing client request with 4XX status code.  If security checks pass, the intercepting filter will allow api request to flow through with propagation of common domain information describing the authenticated, validated client entity.
 
-By centralizing security functions inside this web server, extensibility, loose coupling, and high cohesion can be achieved without impacting other parts of the architecture.  Similarly, as other parts of the architecture evolves, it can be done without tight dependency on security inside the web-tier.
+By centralizing security functions inside the upstream web server, extensibility, loose coupling, and high cohesion can be achieved without impacting other parts of the architecture.  Similarly, as other parts of the architecture evolves, it can be done without tight dependency on security inside the web-tier.
 
 Scale concerns are also addressed by designing stateless security services with auto-scaling.  This not only addresses issues of high load, but addresses issues of capacity planning and efficient use of resources for cost management by using ephemeral services.
 
@@ -49,13 +49,13 @@ API_Request(client_token,api_params) --->  Web-Tier::intercepting_filter --->  h
 
 # Components & Dependencies
 
-The key components to enable this solution are:
+The main components to enable this solution are:
 
 1.  Client request
 
 2.  IdP service.  Okta is used for this solution using a developer account.  Any open system IdP solution can work.
 
-3.  Token validation service.  It encapsulates the security logic for validating client access token and emitting common contextual information for downstream systems to use.
+3.  Token validation service.  Encapsulates the security logic for validating client access token and emitting common contextual information for downstream systems to use.
 
 4.  Nginx web server configured with token validation service as the intercepting filter.
 
@@ -75,10 +75,11 @@ curl -H “Authorization: Bearer <okta_access_token>” -kv https://localhost:84
 
 The token validation service will validate the okta_access_token before processing the sample API request.  
 
-In order to successfully run this example, the Nginx web server with auth_request will need to be configured.  Please refer to nginx documentation for installation and setup details.  Also refer to nginx-conf subproject for sample configuration that includes auth_req and proxy_pass endpoint for the intercepting filter.
+To successfully run this example, the Nginx web server will need to be configured with auth_request module.  Please refer to nginx documentation for installation and setup details.  Also refer to nginx-conf subproject for sample configuration that includes auth_req and proxy_pass modules for the intercepting filter.
 
 In addition, auth-api and rest-api subprojects must also be setup and running.  By default, the auth-api sub-project listens on http port 2000.  For rest-api sample watchlist service, it listens on http port 3000.  See READM.md files in the respective projects for installation and setup details.
 
+NOTE:  this is a sample project.  For a real production project, secure http should be used for all integrations to prevent eavesdropping.
 
 ##  Okta Developer Account for IdP
 Setup developer account at https://developer.okta.com/.
