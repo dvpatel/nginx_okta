@@ -36,13 +36,14 @@ Most modern web servers, apache and nginx, provide modules for intercepting filt
 
 ##  Logical Flow:
 
+```
 API_Request(client_token,api_params) --->  Web-Tier::intercepting_filter --->  https://security_svc(client_token):user_context
                                                      |
                                                      |
                                             req_header:user_context
                                                      |
                                                      |-------->  App_Tier_Svc(user_context, api_params):results
-
+```
 
 # Components & Dependencies
 
@@ -64,9 +65,9 @@ Item 2, 3 and 4 are provided in a subproject:  auth-api, nginx-conf and rest-api
 
 Users can invoke the sample application service using curl or Postman:
 
-‘’’
+```
 curl -H “Authorization: Bearer <okta_access_token>” -kv https://localhost:8443/api/watchlist/1
-‘’’
+```
 
 The Token validation service will validate the okta_access_token before processing the sample API request.  
 
@@ -88,7 +89,7 @@ For this implementation, the cache is configured using a memory store.  For larg
 
 The endpoint for the token validation service is http://localhost:2000/validate.  It is configured as follows in Nginx:
 
-‘’’
+```
         #  auth request endpoint
         location = /bearer_token_introspect {
             internal;
@@ -97,13 +98,14 @@ The endpoint for the token validation service is http://localhost:2000/validate.
             proxy_pass        http://localhost:2000/validate;
         }
 
-‘’’
+```
 
 To test the endpoint directly:
-‘’’
+
+```
 curl -H “Authorization: Bearer <okta_access_token>” -X POST -kv http://localhost:2000/validate
 
-‘’’
+```
 
 On success, the service will return status 204 with client context info in JSON as part of the http response header, X-Basic-Profile.  The basic profile for this same contain user identity info such as username and email.  And it can easily be extended to include other domain specific information.
 
