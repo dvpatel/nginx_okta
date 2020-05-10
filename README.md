@@ -123,7 +123,22 @@ curl -kv -H "Authorization: Bearer <access_token>" https://localhost:8443/api/wa
 
 On success, the service will return a JSON payload with a fictitious watchlist object for the given identifier (:1)
 
-Refer to sub-project rest-api and watchlist module for more details.
+Refer to sub-project rest-api and watchlist module for more details.  Also nginx needs to be configured and running with api endpoint:
+
+```
+        #  rest api
+        location /api {
+            # Any request to path will first be sent for auth
+            auth_request /bearer_token_introspect;
+            auth_request_set $x_basic_profile $upstream_http_x_basic_profile;
+
+            proxy_pass http://localhost:3000;
+            proxy_set_header X-Basic-Profile $x_basic_profile;
+            proxy_set_header Authorization "$http_authorization";
+
+            rewrite ^/api/?(.*) /$1 break;
+        }
+```
 
 ## OpenID Connect (oidc)
 Okta.Com Dev Account
