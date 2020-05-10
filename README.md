@@ -1,26 +1,36 @@
 # Purpose
-In a multi-tier architecture built on trusted systems, there is business and technical value of centralizing security controls, specifially inside the web or api tier of application architecture.  The alterantive is a de-centralized model where security controls are dupliciated across the various tiers leading to support and maintenace complexities, efficient use of resources, performance, and security risks.  And this is required for cases where the multi-tier architecture is built on untrusted systems.
+In an architecture built on trust between controlled systems, there is value of centralizing security controls inside the web tier of a micro-services architecture.  The alterantive is a de-centralized model where security controls are dupliciated across the various tiers leading to support and maintenace complexities, inefficient use of resources, performance lag, and security risks.  This is required in an architecture built on low trust between controlled systems.
 
-For this scope, the assumption is the multi-tier archirecture is built no trust between the web, application, and the data tiers.
+For this scope, the assumption is the archirecture is built on trust between the web, application, and the data tiers, all tightly controlled systems.
 
 ## Forces
-The drivers for centralized security controls inside the web or api tier  are:
-  
-#  Separation of responsibility.  Decouple security processes and management from downstream application functions.  This leads to tighter security as authentication & authorization, security workflow, audiability and other security tasks can be centrally managed without impact to other parts of the architecture components.
 
-#  Ease of management.  As application architecture evolves with hundress of new services or platform evolves with new product lines, there needs be to a robust security in place so that key tasks are common and standards driven
+#  As application architecture evolves with new services or product lines, there needs be a way to independently manage, support, and maintain security controls without creating impediments to new featur and compromising risks.
 
-#  Extensibility.  Security technology and processes will evolve as new authentication and authorization workflows are indentified.  This is driven not only by technical innovation but driven by business needs as well.  By centralize security functions inside the web-tier, extensibility can be achieved without impacting other parts of the architectur.  Similarly, as other parts of the archiecture evolves, it can be done without tight depenency on security
+#  Decouple security processes and management from downstream application functions.  This leads to loose coupling and higher cohesion as authentication & authorization, security workflow, audiability and other security tasks can be centrally managed without impact to other parts of the architecture.
 
-#  Scalability.  As application architecture evoles with more customer load, the security controls and application services shold not become an impediment, especially for cloud based implementation.  This could be achieved by designing stateless services with autoscalaing for both components.
+#  Security technology and business processes will evolve as new authentication and authorization workflows are indentified.  This is driven not only by technology change but driven by business needs as well.  The respective systems need to evolve in a flexibility, independent manner.
 
-#  High Performance.  
+#  As application architecture grows with more customer load, the security and application services should not become a bottleneck, especially for cloud based implementation.
+
+#  The security system should maintain consistent performance and response times for customer requests
+
+#  The security system should provide an way to easy to run audit for vulnerability checks, review secuirty workflows and algorithms, and enable security observability for alerts and threat monitoring.
+
+#  System should be built on automation for faster diagnostics, scale and extensibility.
+
 
 ## Solution
 
-Implement an intercepting filter inside the web tier that enforces security checks for every protected application service requests.  The component can integrate with a dedicated API that is centrally responsible for client token validation, audit, product level authorization checks, as well as providing context information for downstrea services.  
+Designg and implement an intercepting filter inside the web tier to centrally enforce security controls for every protected application service requests.  The component can integrate with security service API that is responsible for client token validation, audit, product level authorization, as well as providing context information for downstrea services.  If security checks fail, the intercepting filter will reject client request with 4XX status code.  If security chcecks pass, the intercepting filter will allow api request to flow through with client entity context information.
 
-For most modern web servers, apache and nginx, they both provide intercepting filter modules that can proxy to security services API or integrate with local, in-memory implementation.  For this design, intercenting filter will be configured to proxy to a sample validation service based on Okta.
+By centralizing security functions inside this web server, extensibility, loose coupling, and high cohesion can be achieved without impacting other parts of the architecture.  Similarly, as other parts of the archiecture evolves, it can be done without tight depenency on security inside the web-tier.
+
+Scale concerns are also addressed by designing stateless securty services with auto-scaling.  This not only addreses issues of high load, but addresses issues of capacity planning and efficient use of resources for cost management by using ephemeral services.
+
+Observability, auditability and ease of diagnostics is also easily achieved since these functions are in one place as opposed to distributed across many downstream systems.  And this becomes critical for production systems where speed to diagnostics and resolution matters in order to minimize business impact.
+
+Most modern web servers, apache and nginx, provide modules for intercepting filters that can proxy to security services API or integrate with local, in-memory implementation.  For this design, intercenting filter will be configured to proxy to a sample validation service built using Okta IdP.
 
 Logical Flow:
 
