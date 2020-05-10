@@ -183,8 +183,6 @@ If the authenticated sessions is expired or unavailable, the tool will prompt us
 -  Nginx Module: (http://nginx.org/en/docs/http/ngx_http_auth_request_module.html)
 -  NestJS Framework: (https://docs.nestjs.com/)
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
 ## Stay in touch
 
 - Author - [Dipesh Patel](https://www.linkedin.com/in/dipeshpatel)
