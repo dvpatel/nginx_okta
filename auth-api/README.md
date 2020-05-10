@@ -38,7 +38,7 @@ $ npm install
 
 ```bash
 # setup environment
-export NODE_ENV=development
+$ export NODE_ENV=development
 
 # development
 $ npm run start
