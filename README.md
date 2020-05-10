@@ -177,13 +177,14 @@ This tool allows to generate and test oidc requests after Okta authentication.  
 If the authenticated sessions is expired or unavailable, it will prompt for Okta authentication.  On successful authentation, the system will generate base64 encoded Access Token.  Use this value as part of the Authorization Bearer token for the sample watchlist request.
 
 ##  References
-Okta Developer Account:   https://developer.okta.com/
-Okta Token Validation:  https://developer.okta.com/docs/guides/validate-id-tokens/overview/
-OpenID Connect Debugger:  https://oidcdebugger.com/debug
-Nginx Module:  http://nginx.org/en/docs/http/ngx_http_auth_request_module.html
-NestJS Framework: https://docs.nestjs.com/
-
-## Support
+-  Auth-API: (https://github.com/dvpatel/nginx_okta/auth-api)
+-  Watchlist Sample Rest-API: (https://github.com/dvpatel/nginx_okta/rest-api)
+-  Nginx-Conf: (https://github.com/dvpatel/nginx_okta/nginx-conf)
+-  Okta Developer Account:   (https://developer.okta.com/)
+-  Okta Token Validation:  (https://developer.okta.com/docs/guides/validate-id-tokens/overview/)
+-  OpenID Connect Debugger:  (https://oidcdebugger.com/debug)
+-  Nginx Module: (http://nginx.org/en/docs/http/ngx_http_auth_request_module.html)
+-  NestJS Framework: (https://docs.nestjs.com/)
 
 Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
 
