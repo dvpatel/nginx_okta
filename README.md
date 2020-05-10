@@ -1,7 +1,7 @@
 # Purpose
-For an architecture based on trust between known systems, there is value in centralizing security controls inside the top upstream systems.  The alternative is a de-centralized model where security controls are distributed across downstream systems.  This type of distribution in responsibility can lead to support and maintenance complexities, performance lag, inefficient use of resources, and security risks.
+For an architecture based on trust between known systems, there is value in centralizing security controls inside the top upstream systems.  The alternative is a de-centralized model where security controls are distributed across downstream systems.  This type of distribution in responsibility can lead to support and maintenance complexities, performance lag, inefficient use of resources, security risks, and break in modularity.
 
-For this project, the assumption is the architecture is built on fully trusted interactions between the web, application, and the data tiers, all tightly controlled, fully managed, fully monitored.
+For this project, the assumption is the architecture is built for a fully managed eco-system with trusted interactions between known multi-tiers components.
 
 ## Forces
 
@@ -9,7 +9,7 @@ For this project, the assumption is the architecture is built on fully trusted i
 
 2.  Decouple security processes and management from downstream systems to support loose coupling and higher cohesion for  authentication & authorization, security workflow, audibility and other security tasks.
 
-3.  Modularity.  Security technology and business processes will evolve as new security workflows are identified.  This is driven not only by technology changes but driven by business needs as well.  The respective systems need to evolve in a flexible, independent manner.
+3.  Security technology and business processes will evolve as new security workflows are identified.  This is driven not only by technology changes but driven by business needs as well.  The respective systems need to evolve in a flexible, independent manner.
 
 4.  As application architecture grows with more customer load, the security services should not become a performance bottleneck.
 
