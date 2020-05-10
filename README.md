@@ -81,7 +81,7 @@ Setup developer account at https://developer.okta.com/.
 
 Once logged into the Okta Dashboard, follow the instructions to create a sample application with proper grant types.  For this sample, implicit grant type will be required.  Also take note and secure the “Client Id” and “Client secret” values.  These will be required to generate access token using OpenID Connect Debugger and for token validation against Okta introspect endpoint using the intercepting filter service in Nginx.
 
-## Token validation service ( auth-api subproject )
+## Token validation service ( auth-api, nginx-conf subprojects )
 
 This service encapsulates the processes for validating client access token using Okta introspect endpoint and cached values.  
 
@@ -97,25 +97,33 @@ The endpoint for the token validation service is http://localhost:2000/validate.
             proxy_set_header  Content-Type "application/x-www-form-urlencoded";
             proxy_pass        http://localhost:2000/validate;
         }
-
 ```
 
 To test the endpoint directly:
 
 ```
 curl -H “Authorization: Bearer <okta_access_token>” -X POST -kv http://localhost:2000/validate
-
 ```
 
-On success, the service will return status 204 with client context info in JSON as part of the http response header, X-Basic-Profile.  The basic profile for this same contain user identity info such as username and email.  And it can easily be extended to include other domain specific information.
+On success, the service will return status 204 with client context info in JSON as part of the http response header, X-Basic-Profile.  The basic profile contain user identity info such as username, user id and email that can be used in downstream systems for domain specific processing.  The validate endpoint can also easily be extended to include other common, domain specific information.
 
-Refer to sub-project auth-api for more details.
+On token validation failure, the service will return either status code 403 (FORBIDDEN) for inactive token or 401 (UNAUTHORIZED) for invalid token.
 
-## Auth-API Project
+Refer to sub-project auth-api and okta module for more details.
 
+## Watchlist application service ( rest-api subproject )
 
-## Rest-API Project
+Watchlist is the sample service that sits behind token validation.  Only a valid token with an active profile is required for access. If an active profile is not provided, the service will return an error with 4XX status code.
 
+To test the endpoint directly:
+
+```
+curl -kv -H "Authorization: Bearer <access_token>" https://localhost:8443/api/watchlist/1
+```  
+
+On success, the service will return a JSON payload with a fictitious watchlist object for the given identifier (:1)
+
+Refer to sub-project rest-api and watchlist module for more details.
 
 ## OpenID Connect (oidc)
 Okta.Com Dev Account
