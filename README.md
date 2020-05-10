@@ -5,9 +5,9 @@ There are technical benefits of centralizing security controls in upstream syste
 
 1.  As applications evolve with new features, there needs be a way to independently manage, support, and maintain security controls without creating impediments to new features.
 
-2.  Decouple security processes from downstream systems to support loose coupling and higher cohesion for security workflow enhancements, auditability, security SDKupdats, and other security tasks.
+2.  Decouple security processes from downstream systems to support loose coupling and higher cohesion for security workflow enhancements, auditability, security SDK updates, and other security tasks.
 
-3.  As application platform grows with more customer load, the security services module should not become a performance bottleneck.
+3.  As application platform grows with more customer load, the security control points should not become a performance bottleneck.
 
 4.  Automate vulnerability checks, security workflows and algorithm compliance, and enable security observability for alerts and monitoring.
 
@@ -18,11 +18,11 @@ There are technical benefits of centralizing security controls in upstream syste
 
 ## Solution
 
-Design and implement an intercepting filter pattern in an upstream system (web-tier) to centrally enforce security controls for protected API requests.  The intercepting filter can integrated with security service API responsible for client token validation, audit, product level authorization, as well as providing domain specific information for downstream services processing.  
+Design and implement an intercepting filter pattern in an upstream system (web-tier) to centrally enforce security controls for protected API requests.  The intercepting filter can be integrated with security service API responsible for client token validation, audit, authorization, as well as providing domain specific information for downstream services processing.  
 
-If security checks fail, the intercepting filter will protect downstream systems by rejecting client request with 4XX status code.  If security checks pass, the intercepting filter will allow api request to flow through with propagation of user profile context to downstream system for domain specific processing.
+The intercepting filter will protect downstream systems on failed validation by rejecting client request with 4XX status code.  If security checks pass, it will allow api request to process through with propagation of user profile context to downstream system for domain specific processing.
 
-By centralizing security functions to the upstream web server, extensibility can be achieved without impacting other parts of the architecture.  Similarly, as other parts of the architecture evolves, it can be done without tight dependency on security components.
+By centralizing security functions to the upstream web server, extensibility can also be achieved without impacting other parts of the architecture.  Similarly, as other parts of the architecture evolves, it can be done without tight dependency on security components.
 
 Scale concerns are also addressed by designing stateless security services with auto-scaling.  This not only addresses issues of high load, but addresses issues of capacity planning and efficient use of resources for cost optimization by using ephemeral services.
 
@@ -67,24 +67,24 @@ Users can invoke the sample application using curl or Postman:
 curl -H “Authorization: Bearer <okta_access_token>” -kv https://localhost:8443/api/watchlist/1
 ```
 
-The token validation service will validate the Okta access_token before processing the sample API request.  On successful validation, watchlist will be returned to the client.  
+The token validation service in the web tier will validate the Okta access_token before processing the sample API request.  On successful validation, watchlist will be returned to the client.
 
 To successfully run this example, the Nginx web server will need to be configured and running with auth_request module.  Please refer to nginx documentation for installation and setup details.  Also refer to nginx-conf subproject for sample configuration that includes auth_req and proxy_pass modules for the intercepting filter.
 
-In addition, auth-api and rest-api subprojects must also be setup and running.  By default, the auth-api sub-project listens on http port 2000.  For rest-api sample watchlist service, it listens on http port 3000.  See READM.md files in the respective projects for installation and setup details.
+In addition, auth-api and rest-api subprojects must also be setup and running.  By default, the auth-api subproject listens on http port 2000.  For rest-api sample watchlist service, it listens on http port 3000.  See READM.md files in the respective projects for installation and setup details.
 
 NOTE:  this is a sample project.  For a real production project, secure http should be used for all integrations to maintain data confidentiality.
 
 ##  Okta Developer Account for IdP
 Setup developer account at https://developer.okta.com/.
 
-Once logged into the Okta Dashboard, follow the instructions to create a sample application with proper grant types.  For this sample, implicit grant type will be required.  Also take note and secure the “Client Id” and “Client secret” values.  These will be required to generate access token using OpenID Connect Debugger and for token validation using Okta introspect endpoint configured as part of the intercepting filter service.
+Once logged into the Okta Dashboard, follow the instructions to create a sample application with proper grant types.  For this sample, implicit grant type will be required.  Also take note of the “Client Id” and “Client secret” values.  These will be required to generate access token using OpenID Connect Debugger and for configuring the token validation service using Okta introspect endpoint.
 
 ## Token validation service ( auth-api, nginx-conf subprojects )
 
-This service, written in NestJS framework, encapsulates the processes for validating client access token using Okta introspect endpoint and cached values.  
+This service, written in NestJS framework, encapsulates the processes for validating client access token using Okta introspect endpoint and cached values.  Refer to Okta module in the project for the validation workflow and required parameters to connecto to Okta introspect endpoint.
 
-For this implementation, the cache is configured using a memory store.  For larger deployments, the cache store can easily be reconfigured to use external cache provider, ie. Redis, for better performance.  See NestJs for details.
+For this implementation, the cache is configured using a memory store.  For larger deployments, the cache store can easily be reconfigured to use external cache provider, ie. Redis, for better performance.  See NestJs for cache store options.
 
 The endpoint for the token validation service is http://localhost:2000/validate.  It is configured as follows in Nginx:
 
@@ -104,7 +104,9 @@ To test the endpoint directly:
 curl -H “Authorization: Bearer <okta_access_token>” -X POST -kv http://localhost:2000/validate
 ```
 
-On success, the service will return status 204 with client context info in JSON as part of the http response header, X-Basic-Profile.  The basic profile contains user identity info such as username, user id and email that can be used in downstream systems for domain specific processing.  This endpoint can also easily be extended to emit other domain specific information based on busienss needs.
+The okta_access_token is retrieved from Open Connect Debugger tool.  See details below.
+
+On successful execution, the service will return status 204 with client context info in JSON as part of the http response header, X-Basic-Profile.  The basic profile contains user identity info such as username, user id and email that can be used in downstream systems for domain specific processing.  This endpoint can easily be extended to emit other domain specific information based on busienss needs.
 
 On token validation failure, the service will return either status code 403 (FORBIDDEN) for inactive token or 401 (UNAUTHORIZED) for invalid token.
 
@@ -112,12 +114,12 @@ Refer to sub-project auth-api and okta module for more details.
 
 ## Watchlist application service ( rest-api subproject )
 
-Watchlist is the sample service that sits behind token validation.  It also runs on NodeJS using NestJS framework.  A valid token with an active profile is required for access. If an active profile is not provided, the service will return an error with 4XX status code.
+Watchlist is the sample service that sits behind token validation.  It also runs on Node using NestJS framework.  A valid access token with an active profile is required for access. If an active profile is not provided, the service will reject client request with 4XX error code.
 
 To test the endpoint:
 
 ```
-curl -kv -H "Authorization: Bearer <access_token>" https://localhost:8443/api/watchlist/1
+curl -kv -H "Authorization: Bearer <okta_access_token>" https://localhost:8443/api/watchlist/1
 ```  
 
 On success, the service will return a JSON payload with a fictitious watchlist object for the given identifier (:1)
