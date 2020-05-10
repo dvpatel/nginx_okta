@@ -3,7 +3,7 @@ For an architecture based on trust between known systems, there is value in cent
 
 For this project, the assumption is the architecture is built on fully trusted interactions between the web, application, and the data tiers, all tightly controlled, fully managed, fully monitored.
 
-## Forces driving security enforcement in top upstream tier
+## Forces
 
 1.  As applications evolve with new services or product lines, there needs be a way to independently manage, support, and maintain security controls without creating impediments to new features and compromising risks.
 
