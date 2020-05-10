@@ -37,6 +37,9 @@ $ npm install
 ## Running the app
 
 ```bash
+# setup environment
+export NODE_ENV=development
+
 # development
 $ npm run start
 
