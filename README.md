@@ -47,11 +47,16 @@ API_Request(client_token,api_params) --->  Web-Tier::intercepting_filter --->  h
 # Components & Dependencies
 
 The key components to enable this solution are:
-IdP service.  Okta is used for this solution using a developer account.
-Token validation service.  It encapsulates the security logic for validating client access token and emitting common contextual information for downstream systems.
-Nginx web server configured with token validation service as the intercepting filter.
-Sample application service.  For this example, it is a sample watchlist service
-OpenID Connect Debugger for Okta authentication and access token generation.  The access token is required as the client credential for the sample application service request.
+
+1.  IdP service.  Okta is used for this solution using a developer account.
+
+2.  Token validation service.  It encapsulates the security logic for validating client access token and emitting common contextual information for downstream systems.
+
+3.  Nginx web server configured with token validation service as the intercepting filter.
+
+4.  Sample application service.  For this example, it is a sample watchlist service
+
+5.  OpenID Connect Debugger for Okta authentication and access token generation.  The access token is required as the client credential for the sample application service request.
 
 Item 2, 3 and 4 are provided in a subproject:  auth-api, nginx-conf and rest-api.
 
