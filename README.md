@@ -18,17 +18,17 @@ There are technical benefits of centralizing security controls in upstream syste
 
 ## Solution
 
-Design and implement an intercepting filter pattern in an upstream system (web-tier) to centrally enforce security controls for every protected API requests.  The intercenting filter can integrate with security service API responsible for client token validation, audit, product level authorization, as well as providing domain specific information for downstream services processing.  
+Design and implement an intercepting filter pattern in an upstream system (web-tier) to centrally enforce security controls for protected API requests.  The intercepting filter can integrated with security service API responsible for client token validation, audit, product level authorization, as well as providing domain specific information for downstream services processing.  
 
 If security checks fail, the intercepting filter will protect downstream systems by rejecting client request with 4XX status code.  If security checks pass, the intercepting filter will allow api request to flow through with propagation of user profile context to downstream system for domain specific processing.
 
-By centralizing security functions to the upstream web server, extensibility, loose coupling, and high cohesion can be achieved without impacting other parts of the architecture.  Similarly, as other parts of the architecture evolves, it can be done without tight dependency on security inside the web-tier.
+By centralizing security functions to the upstream web server, extensibility can be achieved without impacting other parts of the architecture.  Similarly, as other parts of the architecture evolves, it can be done without tight dependency on security components.
 
-Scale concerns are also addressed by designing stateless security services with auto-scaling.  This not only addresses issues of high load, but addresses issues of capacity planning and efficient use of resources for cost management by using ephemeral services.
+Scale concerns are also addressed by designing stateless security services with auto-scaling.  This not only addresses issues of high load, but addresses issues of capacity planning and efficient use of resources for cost optimization by using ephemeral services.
 
 Observability, auditability and alerting is also achieved since these functions are in one place as opposed to distributed across many downstream systems.  This becomes critical for production systems where speed to root cause analysis and resolution matters in order to minimize customer and business impact.
 
-Most modern web servers, apache and nginx, provide modules for intercepting filter that can proxy to security services API or integrate with local, in-memory implementation.  For this project, proxy to external validation service will be used.
+Most modern web servers such as apache and nginx provide intercepting filter modules that can proxy to security services API or integrate with local, in-memory implementation.  For this sample, proxy to external validation service will be used.
 
 ##  Logical Flow:
 
@@ -51,7 +51,7 @@ The main components to enable this solution are:
 
 3.  Token validation service.  Encapsulates the security logic for validating client access token and emitting common contextual information for downstream systems to use.
 
-4.  Nginx web server configured with token validation service as the intercepting filter.
+4.  Nginx web server configured with token validation service end-point as the intercepting filter.
 
 5.  Sample application service.  For this example, it is a sample watchlist service
 
@@ -67,7 +67,7 @@ Users can invoke the sample application using curl or Postman:
 curl -H “Authorization: Bearer <okta_access_token>” -kv https://localhost:8443/api/watchlist/1
 ```
 
-The token validation service will validate the Okta access_token before processing the sample API request.  
+The token validation service will validate the Okta access_token before processing the sample API request.  On successful validation, watchlist will be returned to the client.  
 
 To successfully run this example, the Nginx web server will need to be configured and running with auth_request module.  Please refer to nginx documentation for installation and setup details.  Also refer to nginx-conf subproject for sample configuration that includes auth_req and proxy_pass modules for the intercepting filter.
 
@@ -82,7 +82,7 @@ Once logged into the Okta Dashboard, follow the instructions to create a sample 
 
 ## Token validation service ( auth-api, nginx-conf subprojects )
 
-This service encapsulates the processes for validating client access token using Okta introspect endpoint and cached values.  
+This service, written in NestJS framework, encapsulates the processes for validating client access token using Okta introspect endpoint and cached values.  
 
 For this implementation, the cache is configured using a memory store.  For larger deployments, the cache store can easily be reconfigured to use external cache provider, ie. Redis, for better performance.  See NestJs for details.
 
@@ -104,7 +104,7 @@ To test the endpoint directly:
 curl -H “Authorization: Bearer <okta_access_token>” -X POST -kv http://localhost:2000/validate
 ```
 
-On success, the service will return status 204 with client context info in JSON as part of the http response header, X-Basic-Profile.  The basic profile contains user identity info such as username, user id and email that can be used in downstream systems for domain specific processing.  The validate endpoint can also easily be extended to emit other domain specific information based on busienss needs.
+On success, the service will return status 204 with client context info in JSON as part of the http response header, X-Basic-Profile.  The basic profile contains user identity info such as username, user id and email that can be used in downstream systems for domain specific processing.  This endpoint can also easily be extended to emit other domain specific information based on busienss needs.
 
 On token validation failure, the service will return either status code 403 (FORBIDDEN) for inactive token or 401 (UNAUTHORIZED) for invalid token.
 
@@ -112,7 +112,7 @@ Refer to sub-project auth-api and okta module for more details.
 
 ## Watchlist application service ( rest-api subproject )
 
-Watchlist is the sample service that sits behind token validation.  It runs on NodeJS using NestJS framework.  Only a valid token with an active profile is required for access. If an active profile is not provided, the service will return an error with 4XX status code.
+Watchlist is the sample service that sits behind token validation.  It also runs on NodeJS using NestJS framework.  A valid token with an active profile is required for access. If an active profile is not provided, the service will return an error with 4XX status code.
 
 To test the endpoint:
 
@@ -143,7 +143,7 @@ Refer to sub-project rest-api and watchlist module for more details.  Also nginx
 
 https://oidcdebugger.com/debug
 
-This tool allows to generate and test oidc requests after Okta authentication.  The prarams to generate the okta access token are:
+This tool is used to generate and test oidc requests after Okta authentication.  The prarams to generate the okta access token are:
 
 ```
    Authorize URI (required):
@@ -171,7 +171,7 @@ This tool allows to generate and test oidc requests after Okta authentication.  
    form_post
 ```
 
-If the authenticated sessions is expired or unavailable, it will prompt for Okta authentication.  On successful authentation, the system will generate base64 encoded Access Token.  Use this value as part of the Authorization Bearer token for the sample watchlist request.
+If the authenticated sessions is expired or unavailable, the tool will prompt user for Okta authentication.  On successful authentation, the system will generate base64 encoded access token that will be used as part of the Authorization Bearer token for the sample watchlist request.
 
 ##  References
 -  Auth-API: (https://github.com/dvpatel/nginx_okta/auth-api)
