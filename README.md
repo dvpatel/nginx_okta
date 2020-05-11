@@ -1,5 +1,5 @@
 # Purpose
-There are technical benefits of centralizing security controls in upstream systems of a multi-tier, micro-services architecture.  Centralization allows security controls to be modular where extensibility, maintainability, and security observability becomes much easier to support and manage.
+There are technical benefits of integrating security controls in upstream web server of a multi-tier, micro-services architecture.  This integration allows security controls to be modular where extensibility, maintainability, and  observability becomes much easier to achieve, support and manage.
 
 ## Forces
 
@@ -9,18 +9,14 @@ There are technical benefits of centralizing security controls in upstream syste
 
 3.  As application platform grows with more customer load, the security control points should not become a performance bottleneck.
 
-4.  Automate vulnerability checks, security workflows and algorithm compliance, and enable security observability for alerts and monitoring.
+4.  System should be built on automation for faster diagnostics, scale, and ease of management in a complex micro-services environment.
 
-5.  System should be built on automation for faster diagnostics, scale, and ease of management in a complex micro-services environment.
-
-6.  Optimize costs as system grows with business demands and security complexity.
+5.  Optimize costs as system grows with business demands and security complexity.
 
 
 ## Solution
 
 Design and implement an intercepting filter pattern in an upstream system (web-tier) to centrally enforce security controls for protected API requests.  The intercepting filter can be integrated with security service API responsible for client token validation, audit, authorization, as well as providing domain specific information for downstream services processing.  
-
-The intercepting filter will protect downstream systems on failed validation by rejecting client request with 4XX status code.  If security checks pass, it will allow api request to process through with propagation of user profile context to downstream system for domain specific processing.
 
 By centralizing security functions to the upstream web server, extensibility can also be achieved without impacting other parts of the architecture.  Similarly, as other parts of the architecture evolves, it can be done without tight dependency on security components.
 
