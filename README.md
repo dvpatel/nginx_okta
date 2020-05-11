@@ -1,9 +1,9 @@
 # Purpose
-There are technical benefits of integrating security controls in upstream web server of a multi-tier, micro-services architecture.  This integration allows security controls to be modular where extensibility, maintainability, and  observability becomes much easier to achieve, support and manage.
+There are technical benefits of integrating security controls in upstream web server of a multi-tier, micro-services architecture.  This integration enables modularity where extensibility, maintainability, and observability becomes much easier to support and manage.
 
 ## Forces
 
-1.  As applications evolve with new features, there needs be a way to independently manage, support, and maintain security controls without creating impediments to new features.
+1.  As applications evolve with new features, there needs be a way to independently manage, support, and maintain security controls without creating impediments to application features.
 
 2.  Decouple security processes from downstream systems to support loose coupling and higher cohesion for security workflow enhancements, audit-ability, security SDK updates, and other security tasks.
 
@@ -16,9 +16,9 @@ There are technical benefits of integrating security controls in upstream web se
 
 ## Solution
 
-Design and implement an intercepting filter pattern in an upstream system (web-tier) to centrally enforce security controls for protected API requests.  The intercepting filter can be integrated with security service API responsible for client token validation, audit, authorization, as well as providing domain specific information for downstream services processing.  
+Design and implement an intercepting filter pattern in an upstream system (web-tier) to centrally enforce security controls for protected API requests.  The intercepting filter can be integrated with security service API responsible for client token validation, audit, authorization, as well as providing common domain information for downstream services to use.  
 
-By centralizing security functions to the upstream web server, extensibility can also be achieved without impacting other parts of the architecture.  Similarly, as other parts of the architecture evolves, it can be done without tight dependency on security components.
+By centralizing security functions to the upstream web server, extensibility can also be achieved without impacting other parts of the architecture.  Similarly, as other parts of the architecture evolves, it can be done without tight dependency to the security components.
 
 Scale concerns are also addressed by designing stateless security services with auto-scaling.  This not only addresses issues of high load, but addresses issues of capacity planning and efficient use of resources for cost optimization by using ephemeral services.
 
@@ -29,12 +29,12 @@ Most modern web servers such as apache and nginx provide intercepting filter mod
 ##  Logical Flow:
 
 ```
-API_Request(access_token,api_params) --->  Web::intercepting_filter --->  https://security_svc(access_token):BASIC_PROFILE
+API_Request(access_token,api_params) --->  Web::intercepting_filter --->  1:  https://security_svc(access_token):BASIC_PROFILE
                                                      |
                                                      |
-                                            req_header:BASIC_PROFILE
+                                            req_header:X-BASIC-PROFILE
                                                      |
-                                                     |-------->  App_Tier_Svc(BASIC_PROFILE, api_params):results
+                                                     |-------->  2:  App_Tier_Svc(X-BASIC-PROFILE, api_params):results
 ```
 
 # Components & Dependencies
@@ -45,7 +45,7 @@ The main components to enable this solution are:
 
 2.  IdP service.  Okta is used for this solution using a developer account.  Any open system IdP solution can work.
 
-3.  Token validation service.  Encapsulates the security logic for validating client access token and emitting common contextual information for downstream systems to use.
+3.  Token validation service.  Encapsulates the security workflow to validate client access token and emit common domain information.
 
 4.  Nginx web server configured with token validation service end-point as the intercepting filter.
 
@@ -53,17 +53,20 @@ The main components to enable this solution are:
 
 6.  OpenID Connect Debugger for Okta authentication and access token generation.  The access token is required as the client credential for the sample application service request.
 
-Item 3 - 5 are provided in a subproject:  auth-api, nginx-conf and rest-api.
+Software that addresses item 3 to 5 are provided in a subproject:  
+- auth-api:  security workflow application
+- nginx-conf:  Nginx configuration for the intercepting filter and rest-api
+- rest-api:  rest-api application, sample watchlist
 
 ##  Client Request
 
-Users can invoke the sample application using curl or Postman:
+Users can invoke the sample application service using curl or Postman:
 
 ```
 curl -H “Authorization: Bearer <okta_access_token>” -kv https://localhost:8443/api/watchlist/1
 ```
 
-The token validation service in the web tier will validate the Okta access_token before processing the sample API request.  On successful validation, watchlist will be returned to the client.
+On watchlist service request, the token validation service proxied by nginx will validate the Okta access_token before allowing access to the API request.  Only a successful token validation, the watchlist will be returned to the client as a JSON object.
 
 To successfully run this example, the Nginx web server will need to be configured and running with auth_request module.  Please refer to nginx documentation for installation and setup details.  Also refer to nginx-conf subproject for sample configuration that includes auth_req and proxy_pass modules for the intercepting filter.
 
@@ -94,13 +97,13 @@ The endpoint for the token validation service is http://localhost:2000/validate.
         }
 ```
 
-To test the endpoint directly:
+To test the security workflow endpoint directly:
 
 ```
 curl -H “Authorization: Bearer <okta_access_token>” -X POST -kv http://localhost:2000/validate
 ```
 
-The okta_access_token is retrieved from Open Connect Debugger tool.  See details below.
+The okta_access_token can be retrieved from Open Connect Debugger tool.  See details below.
 
 On successful execution, the service will return status 204 with client context info in JSON as part of the http response header, X-Basic-Profile.  The basic profile contains user identity info such as username, user id and email that can be used in downstream systems for domain specific processing.  This endpoint can easily be extended to emit other domain specific information based on business needs.
 
