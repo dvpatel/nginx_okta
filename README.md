@@ -5,7 +5,7 @@ There are technical benefits of centralizing security controls in upstream syste
 
 1.  As applications evolve with new features, there needs be a way to independently manage, support, and maintain security controls without creating impediments to new features.
 
-2.  Decouple security processes from downstream systems to support loose coupling and higher cohesion for security workflow enhancements, auditability, security SDK updates, and other security tasks.
+2.  Decouple security processes from downstream systems to support loose coupling and higher cohesion for security workflow enhancements, audit-ability, security SDK updates, and other security tasks.
 
 3.  As application platform grows with more customer load, the security control points should not become a performance bottleneck.
 
