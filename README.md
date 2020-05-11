@@ -1,5 +1,5 @@
 # Purpose
-There are technical benefits of centralizing security controls in upstream systems of a multi-tier, micro-services architecture.  Centralization allows security controls to be modular where extensibility, maintainability, and security observability becomes much easier to support and manage.
+There are technical benefits of integrating security controls in upstream web server of a multi-tier, micro-services architecture.  This integration allows security controls to be modular where extensibility, maintainability, and  observability becomes much easier to achieve, support and manage.
 
 ## Forces
 
