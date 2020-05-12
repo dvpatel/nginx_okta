@@ -1,4 +1,4 @@
-import { HttpStatus, UsePipes, Controller, Body, Res, Get, Post, Put, Delete, Param, Query, UseFilters, Logger } from '@nestjs/common';
+import { HttpStatus, Headers, UsePipes, Controller, Body, Res, Get, Post, Put, Delete, Param, Query, UseFilters, Logger } from '@nestjs/common';
 import { ErrorUtil } from '../util/error';
 
 import { NumberValidationPipe } from '../util/number-validation.pipe';
@@ -26,10 +26,15 @@ export class WatchListController {
    */
   @Get(':watchListId')
   @UsePipes(new NumberValidationPipe())
-  getCustomerWatchListById(@Param('watchListId') watchListId: number, @Res() response) {
-    //  Assume customerId = 1 ;
+  getCustomerWatchListById(@Headers('x-basic-profile') basicProfileHeader, @Param('watchListId') watchListId: number, @Res() response) {
+
+    this.logger.debug(basicProfileHeader);
+
+    //  Get basic profile from header;
+    var basicProfile = JSON.parse(basicProfileHeader);
+
     const customerId = 1;
-    this.service.getCustomerWatchListById(customerId, watchListId)
+    this.service.getCustomerWatchListById(customerId, basicProfile.sub, watchListId)
       .subscribe(result => {
         response.status(HttpStatus.OK).send(result);
       }, error => {
