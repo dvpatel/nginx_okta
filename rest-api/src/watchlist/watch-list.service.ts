@@ -34,10 +34,11 @@ export class WatchListService {
      * @param customerId
      * @param watchListId
      */
-    public getCustomerWatchListById(customerId: number, watchListId: number): Observable<WatchList> {
+    public getCustomerWatchListById(customerId: number, subject: string, watchListId: number): Observable<WatchList> {
 
         const watchList = this.sampleDataMap.get(customerId).list.filter(item => item.watchListId === watchListId);
         if (watchList && watchList.length === 1) {
+            watchList[0].subject = subject;
             return of(watchList[0]);
         }
 

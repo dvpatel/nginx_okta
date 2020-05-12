@@ -34,6 +34,9 @@ export class OktaController {
         if (!basicProfile.active) {
           response.status(HttpStatus.FORBIDDEN).send(OktaController.INVALID_TOKEN);
         } else {
+
+          this.logger.debug(basicProfile);
+
           response.set(OktaController.BASIC_PROFILE_HEADER, JSON.stringify(basicProfile));
           response.status(HttpStatus.NO_CONTENT).send(OktaController.VALID_TOKEN);
         }
