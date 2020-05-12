@@ -10,7 +10,7 @@ import { TokenValidationGuard } from 'src/util/token-validation.guard';
 @Module({
     imports: [
         CacheModule.register({
-            ttl: 300, // seconds
+            ttl: 600, // seconds
             max: 10, // maximum number of items in cache
         }),
         HttpModule.register({ timeout: 2000, maxRedirects: 0 }),
